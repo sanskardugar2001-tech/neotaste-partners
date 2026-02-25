@@ -9,7 +9,7 @@ const timeline = [
   {
     day: "Day 0",
     title: "Onboarding Complete",
-    desc: "Creator signs up and receives their unique code and dashboard access.",
+    desc: "Partner signs up and receives their unique code and dashboard access.",
     color: "bg-neo-green",
   },
   {
@@ -21,7 +21,7 @@ const timeline = [
   {
     day: "Day 14+",
     title: "Engagement Loop",
-    desc: "Weekly check-ins and milestone celebrations keep creators active.",
+    desc: "Weekly check-ins and milestone celebrations keep partners active.",
     color: "bg-blue-400",
   },
   {
@@ -106,25 +106,25 @@ Your earnings so far: £{{total_earnings}}
 
 As a thank you, we've upgraded your food expense limit. You can now claim up to £75 per restaurant visit (was £50).
 
-Keep going — the top creators earn over £80,000! 🏆`,
+Keep going — the top partners earn over £80,000! 🏆`,
   },
   {
     id: 5,
-    title: "50 Referrals Milestone — Star Creator",
+    title: "50 Referrals Milestone — Star Partner",
     trigger: "50 successful referral conversions",
     channel: "WhatsApp",
     channelColor: "bg-[#25D366]/20 text-[#25D366]",
-    template: `⭐ STAR CREATOR STATUS! ⭐
+    template: `⭐ STAR PARTNER STATUS! ⭐
 
-{{first_name}}, you are officially a NeoTaste Star Creator!
+{{first_name}}, you are officially a NeoTaste Star Partner!
 
-50 referrals is incredible. You're in the top 5% of all creators.
+50 referrals is incredible. You're in the top 5% of all partners.
 
 Your rewards:
-🌟 Star Creator badge on your profile
+🌟 Star Partner badge on your profile
 🍽️ Unlimited food expense coverage
 📸 Priority access to new restaurant partners
-💬 Direct line to our creator success team
+💬 Direct line to our partner success team
 
 Total earned: £{{total_earnings}}
 
@@ -262,17 +262,17 @@ export default function NudgesPage() {
             Automated Engagement
           </div>
           <h1 className="text-3xl md:text-4xl font-bold mb-3">
-            Creator Nudge System
+            Partner Nudge System
           </h1>
           <p className="text-white/50 max-w-2xl">
-            Automated messages that keep creators engaged, celebrate milestones,
+            Automated messages that keep partners engaged, celebrate milestones,
             and provide timely content inspiration throughout their journey.
           </p>
         </div>
 
         {/* Timeline */}
         <section className="mb-16">
-          <h2 className="text-xl font-semibold mb-6">Creator Journey</h2>
+          <h2 className="text-xl font-semibold mb-6">Partner Journey</h2>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             {timeline.map((event, i) => (
               <div key={event.day} className="relative">
@@ -319,7 +319,7 @@ export default function NudgesPage() {
           <div>
             <h3 className="font-semibold mb-1">About the Nudge System</h3>
             <p className="text-sm text-white/50 leading-relaxed">
-              All nudges are automated and personalized using creator data.
+              All nudges are automated and personalized using partner data.
               Variables like{" "}
               <code className="text-neo-green/80 bg-neo-dark px-1 rounded">
                 {"{{first_name}}"}
@@ -328,7 +328,7 @@ export default function NudgesPage() {
               <code className="text-neo-green/80 bg-neo-dark px-1 rounded">
                 {"{{creator_code}}"}
               </code>{" "}
-              are dynamically replaced with each creator&apos;s actual data. Creators
+              are dynamically replaced with each partner&apos;s actual data. Partners
               can opt out of nudges at any time through their dashboard settings.
             </p>
           </div>

@@ -115,7 +115,7 @@ export default function SignupPage() {
           Create Your Account
         </h1>
         <p className="text-white/50 text-center text-sm mb-8">
-          Set up your Creator Portal access
+          Set up your Partner Portal access
         </p>
 
         {success ? (
@@ -141,7 +141,7 @@ export default function SignupPage() {
               </div>
               <p className="text-sm text-white/70">
                 Check your email to verify your account, then log in to your
-                Creator Portal.
+                Partner Portal.
               </p>
             </div>
             <Link

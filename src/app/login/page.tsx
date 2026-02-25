@@ -64,7 +64,7 @@ export default function LoginPage() {
           <NeoTasteIcon className="h-12 w-12" />
         </div>
         <h1 className="text-2xl font-bold text-white text-center mb-2">
-          Creator Portal
+          Partner Portal
         </h1>
         <p className="text-white/50 text-center text-sm mb-8">
           Sign in to access your dashboard

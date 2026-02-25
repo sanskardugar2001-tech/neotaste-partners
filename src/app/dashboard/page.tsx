@@ -33,7 +33,7 @@ const paymentHistory = [
 const invoiceFAQ = [
   {
     q: "How to invoice referral payouts",
-    a: "Send a separate invoice for your referral earnings each month to Modash. Include your creator code, the billing period, and total amount due.",
+    a: "Send a separate invoice for your referral earnings each month to Modash. Include your partner code, the billing period, and total amount due.",
   },
   {
     q: "How to invoice food expenses",

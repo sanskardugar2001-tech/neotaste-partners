@@ -1,5 +1,5 @@
 -- ╔═══════════════════════════════════════════════════════════╗
--- ║  NeoTaste Creator Portal — Videos Table Setup           ║
+-- ║  NeoTaste Partner Portal — Videos Table Setup            ║
 -- ║  Run this AFTER supabase-setup.sql                      ║
 -- ╚═══════════════════════════════════════════════════════════╝
 

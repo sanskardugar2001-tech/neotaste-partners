@@ -51,7 +51,7 @@ function LoginForm({ onLogin }: { onLogin: () => void }) {
           Admin Portal
         </h1>
         <p className="text-white/50 text-center text-sm mb-8">
-          Sign in to manage creator invoices &amp; videos
+          Sign in to manage partner invoices &amp; videos
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -272,7 +272,7 @@ function InvoicesSection() {
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
           <input
             type="text"
-            placeholder="Search creator..."
+            placeholder="Search partner..."
             value={filterName}
             onChange={(e) => setFilterName(e.target.value)}
             className="bg-neo-dark border border-neo-dark-light rounded-xl px-3 py-2 text-sm text-white placeholder:text-white/30 focus:border-neo-green focus:outline-none"
@@ -384,7 +384,7 @@ function InvoicesSection() {
                   <div className="px-6 pb-5 bg-neo-dark/50">
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4 text-sm">
                       <div>
-                        <p className="text-white/40 text-xs mb-0.5">Creator</p>
+                        <p className="text-white/40 text-xs mb-0.5">Partner</p>
                         <p className="font-medium">{inv.creators?.name}</p>
                         <p className="text-xs text-white/50">
                           {inv.creators?.voucher_code}
@@ -621,7 +621,7 @@ function VideosSection() {
         <div className="grid grid-cols-2 gap-3">
           <input
             type="text"
-            placeholder="Search creator or title..."
+            placeholder="Search partner or title..."
             value={filterName}
             onChange={(e) => setFilterName(e.target.value)}
             className="bg-neo-dark border border-neo-dark-light rounded-xl px-3 py-2 text-sm text-white placeholder:text-white/30 focus:border-neo-green focus:outline-none"
@@ -696,7 +696,7 @@ function VideosSection() {
                   <div className="px-6 pb-5 bg-neo-dark/50">
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4 text-sm">
                       <div>
-                        <p className="text-white/40 text-xs mb-0.5">Creator</p>
+                        <p className="text-white/40 text-xs mb-0.5">Partner</p>
                         <p className="font-medium">{v.creators?.name}</p>
                         <p className="text-xs text-white/50">
                           {v.creators?.email}

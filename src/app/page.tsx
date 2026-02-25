@@ -8,11 +8,11 @@ import { NeoTasteLogo } from "@/components/NeoTasteLogo";
 const faqItems = [
   {
     q: "How do I join?",
-    a: "Fill out the application form on this page. Once approved, you'll receive your unique creator code and access to your personal dashboard where you can track everything.",
+    a: "Fill out the application form on this page. Once approved, you'll receive your unique partner code and access to your personal dashboard where you can track everything.",
   },
   {
     q: "Where do I find my links & creatives?",
-    a: "All your referral links, creative assets, and promotional materials are available in your creator dashboard after approval.",
+    a: "All your referral links, creative assets, and promotional materials are available in your partner dashboard after approval.",
   },
   {
     q: "What's the revenue share?",
@@ -35,8 +35,8 @@ const faqItems = [
     a: "After your application is approved, you'll receive a special personal-use code that gives you free access to NeoTaste for your own dining experiences.",
   },
   {
-    q: "Creator code vs in-app referrals?",
-    a: "Your creator code is specifically for sharing with your audience and tracking your referrals. In-app referrals are a separate system for regular users and are not connected to your creator earnings.",
+    q: "Partner code vs in-app referrals?",
+    a: "Your partner code is specifically for sharing with your audience and tracking your referrals. In-app referrals are a separate system for regular users and are not connected to your partner earnings.",
   },
   {
     q: "Food expense for shoots?",
@@ -49,7 +49,7 @@ const testimonials = [
   {
     name: "Sarah K.",
     handle: "@sarahfoodie",
-    text: "NeoTaste's creator program changed my content game. I was earning within the first week and the dashboard makes tracking so easy!",
+    text: "NeoTaste's partner program changed my content game. I was earning within the first week and the dashboard makes tracking so easy!",
   },
   {
     name: "James L.",
@@ -73,7 +73,7 @@ const steps = [
   {
     num: "02",
     title: "Get Your Code",
-    desc: "Receive your unique creator code and dashboard access.",
+    desc: "Receive your unique partner code and dashboard access.",
   },
   {
     num: "03",
@@ -92,7 +92,7 @@ const benefits = [
   {
     icon: "👥",
     title: "No Follower Minimum",
-    desc: "We welcome creators of all sizes. Quality content matters more than follower counts.",
+    desc: "We welcome partners of all sizes. Quality content matters more than follower counts.",
   },
   {
     icon: "📊",
@@ -293,7 +293,7 @@ export default function LandingPage() {
               FAQ
             </a>
             <Link href="/dashboard" className="text-sm text-white/70 hover:text-white transition-colors">
-              Creator Portal
+              Partner Portal
             </Link>
             <a
               href="#apply"
@@ -315,7 +315,7 @@ export default function LandingPage() {
       <section className="pt-32 pb-20 px-6">
         <div className="max-w-4xl mx-auto text-center">
           <div className="inline-block bg-neo-green/10 border border-neo-green/30 rounded-full px-4 py-1.5 text-neo-green text-sm font-medium mb-6">
-            Creator Partner Program
+            Partner Program
           </div>
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-800 leading-tight mb-6">
             Earn{" "}
@@ -324,7 +324,7 @@ export default function LandingPage() {
             NeoTaste subscriber
           </h1>
           <p className="text-lg md:text-xl text-white/60 max-w-2xl mx-auto mb-10">
-            Join our creator partner program and earn recurring revenue by sharing
+            Join our partner program and earn recurring revenue by sharing
             your love for great food experiences. No minimum followers, no
             deliverables.
           </p>
@@ -389,10 +389,10 @@ export default function LandingPage() {
       <section className="py-24 px-6 bg-neo-dark-card">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">
-            Why creators love us
+            Why partners love us
           </h2>
           <p className="text-white/50 text-center mb-16 max-w-lg mx-auto">
-            Everything you need to succeed as a NeoTaste creator partner.
+            Everything you need to succeed as a NeoTaste partner.
           </p>
           <div className="grid md:grid-cols-3 gap-6">
             {benefits.map((b) => (
@@ -476,10 +476,10 @@ export default function LandingPage() {
       <section className="py-24 px-6 bg-neo-dark-card">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">
-            Creator Showcase
+            Partner Showcase
           </h2>
           <p className="text-white/50 text-center mb-12">
-            See how our creators are sharing NeoTaste with their audience.
+            See how our partners are sharing NeoTaste with their audience.
           </p>
           <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
             {creatorVideos.map((url, i) => (
@@ -492,7 +492,7 @@ export default function LandingPage() {
                   allow="autoplay"
                   allowFullScreen
                   className="w-full h-full border-0"
-                  title={`Creator Video ${i + 1}`}
+                  title={`Partner Video ${i + 1}`}
                 />
               </div>
             ))}
@@ -504,10 +504,10 @@ export default function LandingPage() {
       <section className="py-24 px-6">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">
-            What creators say
+            What partners say
           </h2>
           <p className="text-white/50 text-center mb-12">
-            Hear from creators already in the program.
+            Hear from partners already in the program.
           </p>
           <div className="grid md:grid-cols-3 gap-6">
             {testimonials.map((t) => (
@@ -540,7 +540,7 @@ export default function LandingPage() {
             Frequently Asked Questions
           </h2>
           <p className="text-white/50 text-center mb-12">
-            Everything you need to know about the creator program.
+            Everything you need to know about the partner program.
           </p>
           <div className="flex flex-col gap-3">
             {faqItems.map((item) => (
@@ -589,7 +589,7 @@ export default function LandingPage() {
             Start earning today
           </h2>
           <p className="text-neo-dark/60 mb-8 text-lg">
-            Join 1,000+ creators already earning with NeoTaste.
+            Join 1,000+ partners already earning with NeoTaste.
           </p>
           <a
             href="#apply"
@@ -612,7 +612,7 @@ export default function LandingPage() {
               FAQ
             </a>
             <Link href="/dashboard" className="hover:text-white transition-colors">
-              Creator Portal
+              Partner Portal
             </Link>
           </div>
           <p className="text-sm text-white/30">

@@ -10,9 +10,9 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "NeoTaste Creator Partner Platform",
+  title: "NeoTaste Partner Platform",
   description:
-    "Earn £25 for every NeoTaste subscriber. Join our creator partner program and start earning today.",
+    "Earn £25 for every NeoTaste subscriber. Join our partner program and start earning today.",
 };
 
 export default function RootLayout({
