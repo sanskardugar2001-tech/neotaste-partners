@@ -9,8 +9,15 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        background: "var(--background)",
-        foreground: "var(--foreground)",
+        neo: {
+          dark: "#11301D",
+          green: "#53F293",
+          "dark-light": "#1a4a2e",
+          "dark-card": "#162b1f",
+        },
+      },
+      fontFamily: {
+        poppins: ["var(--font-poppins)", "sans-serif"],
       },
     },
   },

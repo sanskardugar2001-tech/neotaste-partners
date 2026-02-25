@@ -3,25 +3,256 @@
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --background: #11301D;
+  --foreground: #ffffff;
 }
 
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
 }
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #11301D;
+}
+::-webkit-scrollbar-thumb {
+  background: #53F293;
+  border-radius: 4px;
+}
+
+/* Range slider styling */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 8px;
+  background: #1a4a2e;
+  border-radius: 4px;
+  outline: none;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #53F293;
+  cursor: pointer;
+  border: 3px solid #11301D;
+}
+input[type="range"]::-moz-range-thumb {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #53F293;
+  cursor: pointer;
+  border: 3px solid #11301D;
+}
+
+/* ─── HubSpot form styling overrides ─── */
+
+/* Base font for entire form */
+#hubspot-form-container,
+#hubspot-form-container *,
+#hubspot-form-container .hs-form-private,
+#hubspot-form-container .hs-form-private * {
+  font-family: var(--font-poppins), "Poppins", sans-serif !important;
+}
+
+/* Field groups & spacing */
+#hubspot-form-container .hs-form-private .hs-form-field {
+  margin-bottom: 16px !important;
+}
+
+/* ── Labels ── */
+#hubspot-form-container .hs-form-private label:not(.hs-error-msg) {
+  color: #9ca3af !important;
+  font-weight: 500 !important;
+  font-size: 14px !important;
+  margin-bottom: 6px !important;
+  display: block !important;
+}
+
+/* Required asterisks → green */
+#hubspot-form-container .hs-form-private label .hs-form-required,
+#hubspot-form-container .hs-form-private .hs-form-required {
+  color: #53F293 !important;
+}
+
+/* ── Text / email / tel / textarea inputs ── */
+#hubspot-form-container .hs-form-private .hs-input,
+#hubspot-form-container .hs-form-private input.hs-input,
+#hubspot-form-container .hs-form-private textarea.hs-input {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  color: #ffffff !important;
+  border-radius: 10px !important;
+  padding: 12px 16px !important;
+  font-size: 14px !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  transition: border-color 0.2s ease !important;
+  -webkit-appearance: none !important;
+  appearance: none !important;
+}
+
+#hubspot-form-container .hs-form-private .hs-input:focus,
+#hubspot-form-container .hs-form-private input.hs-input:focus,
+#hubspot-form-container .hs-form-private textarea.hs-input:focus {
+  border-color: #53F293 !important;
+  outline: none !important;
+  box-shadow: 0 0 0 2px rgba(83, 242, 147, 0.15) !important;
+}
+
+/* ── Placeholder text ── */
+#hubspot-form-container .hs-form-private .hs-input::placeholder,
+#hubspot-form-container .hs-form-private input::placeholder,
+#hubspot-form-container .hs-form-private textarea::placeholder {
+  color: #6b7280 !important;
+  opacity: 1 !important;
+}
+
+/* ── Select / dropdown inputs ── */
+#hubspot-form-container .hs-form-private select.hs-input,
+#hubspot-form-container .hs-form-private select {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  color: #ffffff !important;
+  border-radius: 10px !important;
+  padding: 12px 16px !important;
+  font-size: 14px !important;
+  width: 100% !important;
+  cursor: pointer !important;
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 14px center !important;
+  background-size: 16px !important;
+  padding-right: 40px !important;
+}
+
+#hubspot-form-container .hs-form-private select.hs-input:focus,
+#hubspot-form-container .hs-form-private select:focus {
+  border-color: #53F293 !important;
+  outline: none !important;
+  box-shadow: 0 0 0 2px rgba(83, 242, 147, 0.15) !important;
+}
+
+/* Dropdown option elements (dark bg so text is readable) */
+#hubspot-form-container .hs-form-private select.hs-input option,
+#hubspot-form-container .hs-form-private select option {
+  background: #11301D !important;
+  color: #ffffff !important;
+  padding: 8px !important;
+}
+
+/* ── Checkboxes & radio buttons ── */
+#hubspot-form-container .hs-form-private .hs-form-checkbox label,
+#hubspot-form-container .hs-form-private .hs-form-radio label,
+#hubspot-form-container .hs-form-private .hs-form-booleancheckbox label {
+  color: #9ca3af !important;
+  font-size: 14px !important;
+}
+
+#hubspot-form-container .hs-form-private input[type="checkbox"],
+#hubspot-form-container .hs-form-private input[type="radio"] {
+  accent-color: #53F293 !important;
+  width: 16px !important;
+  height: 16px !important;
+}
+
+/* ── Submit button ── */
+#hubspot-form-container .hs-form-private .hs-button,
+#hubspot-form-container .hs-form-private input[type="submit"],
+#hubspot-form-container .hs-form-private .hs-submit input {
+  background: #53F293 !important;
+  color: #11301D !important;
+  font-weight: 700 !important;
+  font-size: 16px !important;
+  border-radius: 12px !important;
+  padding: 14px 32px !important;
+  border: none !important;
+  cursor: pointer !important;
+  width: 100% !important;
+  display: block !important;
+  text-align: center !important;
+  transition: background 0.2s ease, transform 0.1s ease !important;
+  letter-spacing: 0.01em !important;
+}
+
+#hubspot-form-container .hs-form-private .hs-button:hover,
+#hubspot-form-container .hs-form-private input[type="submit"]:hover,
+#hubspot-form-container .hs-form-private .hs-submit input:hover {
+  background: #42d97e !important;
+}
+
+#hubspot-form-container .hs-form-private .hs-button:active,
+#hubspot-form-container .hs-form-private input[type="submit"]:active,
+#hubspot-form-container .hs-form-private .hs-submit input:active {
+  transform: scale(0.98) !important;
+}
+
+/* ── Error messages ── */
+#hubspot-form-container .hs-form-private .hs-error-msg,
+#hubspot-form-container .hs-form-private .hs-error-msgs li,
+#hubspot-form-container .hs-form-private label.hs-error-msg,
+#hubspot-form-container .hs-form-private .hs-main-font-element.hs-error-msg {
+  color: #f87171 !important;
+  font-size: 12px !important;
+  font-weight: 400 !important;
+  margin-top: 4px !important;
+}
+
+#hubspot-form-container .hs-form-private .hs-error-msgs {
+  list-style: none !important;
+  padding: 0 !important;
+  margin: 4px 0 0 0 !important;
+}
+
+/* Error state input border */
+#hubspot-form-container .hs-form-private .hs-input.error,
+#hubspot-form-container .hs-form-private .hs-input.invalid {
+  border-color: #f87171 !important;
+}
+
+/* ── Help / description text ── */
+#hubspot-form-container .hs-form-private .hs-field-desc,
+#hubspot-form-container .hs-form-private .hs-richtext,
+#hubspot-form-container .hs-form-private .hs-richtext p,
+#hubspot-form-container .hs-form-private p {
+  color: #9ca3af !important;
+  font-size: 13px !important;
+  line-height: 1.5 !important;
+}
+
+/* ── Legal consent / GDPR text ── */
+#hubspot-form-container .hs-form-private .legal-consent-container,
+#hubspot-form-container .hs-form-private .legal-consent-container p,
+#hubspot-form-container .hs-form-private .legal-consent-container span {
+  color: #9ca3af !important;
+  font-size: 12px !important;
+}
+
+#hubspot-form-container .hs-form-private .legal-consent-container a {
+  color: #53F293 !important;
+  text-decoration: underline !important;
+}
+
+/* ── Multi-column field rows ── */
+#hubspot-form-container .hs-form-private .form-columns-2 .hs-form-field,
+#hubspot-form-container .hs-form-private .form-columns-3 .hs-form-field {
+  padding: 0 6px !important;
+}
+
+/* ── Submitted message ── */
+#hubspot-form-container .submitted-message {
+  color: #53F293 !important;
+  font-size: 16px !important;
+  font-weight: 500 !important;
+  text-align: center !important;
+  padding: 24px !important;
 }
