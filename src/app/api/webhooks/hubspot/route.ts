@@ -4,8 +4,10 @@ import { NextRequest, NextResponse } from "next/server";
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 
-// Service role client — bypasses RLS
-const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
+// Service role client — bypasses RLS and has admin API access
+const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
+  auth: { autoRefreshToken: false, persistSession: false },
+});
 
 export async function POST(req: NextRequest) {
   try {
@@ -19,16 +21,20 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 1. Create Supabase Auth user (sends verification email automatically)
+    // 1. Create Supabase Auth user via admin API
+    //    email_confirm: false means the user must verify their email.
+    //    Supabase auto-sends a verification/magic-link email.
     const { data: authData, error: authError } =
       await supabaseAdmin.auth.admin.createUser({
         email,
-        email_confirm: false, // triggers verification email
+        email_confirm: false,
       });
 
     if (authError) {
-      // Duplicate email in auth
-      if (authError.message?.includes("already been registered")) {
+      if (
+        authError.message?.includes("already been registered") ||
+        authError.message?.includes("already exists")
+      ) {
         return NextResponse.json(
           { error: "A user with this email already exists" },
           { status: 409 }
