@@ -164,6 +164,7 @@ function FAQItem({ q, a }: { q: string; a: string }) {
 /* ───────── HubSpot Form ───────── */
 function HubSpotForm() {
   const containerRef = useRef<HTMLDivElement>(null);
+  const [submitted, setSubmitted] = useState(false);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -173,29 +174,28 @@ function HubSpotForm() {
 
     const createForm = () => {
       if (cancelled || !containerRef.current) return;
-      // Clear any previous form instances
       containerRef.current.innerHTML = "";
       window.hbspt.forms.create({
         portalId: "143252643",
         formId: "cf31950e-fbe1-4143-bcb1-a91f49d5bda1",
         region: "eu1",
         target: "#hubspot-form-container",
+        onFormSubmitted: () => {
+          setSubmitted(true);
+        },
       });
     };
 
-    // If the script is already loaded from a previous mount, just create the form
     if (window.hbspt) {
       createForm();
       return;
     }
 
-    // Check if script tag already exists (e.g. from strict mode double-mount)
     const existingScript = document.querySelector(
       'script[src="https://js-eu1.hsforms.net/forms/embed/v2.js"]'
     );
 
     if (existingScript) {
-      // Script tag exists but hbspt not ready yet — poll for it
       const interval = setInterval(() => {
         if (window.hbspt) {
           clearInterval(interval);
@@ -212,14 +212,12 @@ function HubSpotForm() {
     script.src = "https://js-eu1.hsforms.net/forms/embed/v2.js";
     script.async = true;
     script.onload = () => {
-      // hbspt may not be available immediately after script load
       const interval = setInterval(() => {
         if (window.hbspt) {
           clearInterval(interval);
           createForm();
         }
       }, 100);
-      // Safety: stop polling after 10s
       setTimeout(() => clearInterval(interval), 10000);
     };
     document.head.appendChild(script);
@@ -228,6 +226,41 @@ function HubSpotForm() {
       cancelled = true;
     };
   }, []);
+
+  if (submitted) {
+    return (
+      <div className="bg-neo-dark-card border border-neo-green/30 rounded-2xl p-8 text-center">
+        <div className="w-12 h-12 rounded-full bg-neo-green/20 flex items-center justify-center mx-auto mb-4">
+          <svg
+            className="w-6 h-6 text-neo-green"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M5 13l4 4L19 7"
+            />
+          </svg>
+        </div>
+        <h3 className="text-xl font-bold text-white mb-2">
+          Application submitted!
+        </h3>
+        <p className="text-white/60 mb-6">
+          Now create your portal account to start submitting content and
+          invoices.
+        </p>
+        <Link
+          href="/signup"
+          className="inline-block bg-neo-green text-neo-dark px-8 py-3 rounded-xl font-semibold text-lg hover:bg-neo-green/90 transition-colors"
+        >
+          Create Portal Account
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -528,6 +561,24 @@ export default function LandingPage() {
             hours.
           </p>
           <HubSpotForm />
+        </div>
+      </section>
+
+      {/* ─── Already Applied? ─── */}
+      <section className="py-16 px-6 bg-neo-dark-card border-t border-white/10">
+        <div className="max-w-2xl mx-auto text-center">
+          <h2 className="text-2xl md:text-3xl font-bold mb-3">
+            Already applied?
+          </h2>
+          <p className="text-white/50 mb-6">
+            Create your portal account to start submitting content and invoices.
+          </p>
+          <Link
+            href="/signup"
+            className="inline-block bg-neo-green text-neo-dark px-8 py-3.5 rounded-xl font-semibold text-lg hover:bg-neo-green/90 transition-colors"
+          >
+            Create Portal Account
+          </Link>
         </div>
       </section>
 

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { NeoTasteIcon } from "@/components/NeoTasteLogo";
 
@@ -109,6 +110,16 @@ export default function LoginPage() {
             {loading ? "Signing in..." : "Sign In"}
           </button>
         </form>
+
+        <p className="text-center text-sm text-white/40 mt-6">
+          Don&apos;t have an account?{" "}
+          <Link
+            href="/signup"
+            className="text-neo-green hover:underline font-medium"
+          >
+            Sign up
+          </Link>
+        </p>
       </div>
     </div>
   );

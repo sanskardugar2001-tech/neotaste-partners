@@ -3,6 +3,7 @@ interface HubSpotFormsCreateOptions {
   formId: string;
   region?: string;
   target?: string;
+  onFormSubmitted?: () => void;
 }
 
 interface HubSpotForms {
