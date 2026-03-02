@@ -16,7 +16,7 @@ const faqItems = [
   },
   {
     q: "What's the revenue share?",
-    a: "You earn £25 per subscription when someone uses your code, completes the free trial, and converts to an annual subscription.",
+    a: "You earn £20 per subscription when someone uses your code, completes the free trial, and converts to an annual subscription.",
   },
   {
     q: "When do I get paid?",
@@ -41,25 +41,6 @@ const faqItems = [
   {
     q: "Food expense for shoots?",
     a: "Food expenses are not covered for your first 2 videos. After that, you can claim up to £50 per shoot by submitting an invoice with a photo of your receipt.",
-  },
-];
-
-/* ───────── Testimonials ───────── */
-const testimonials = [
-  {
-    name: "Sarah K.",
-    handle: "@sarahfoodie",
-    text: "NeoTaste's partner program changed my content game. I was earning within the first week and the dashboard makes tracking so easy!",
-  },
-  {
-    name: "James L.",
-    handle: "@jamescityeats",
-    text: "No deliverables, no pressure. I just share what I love and the earnings keep coming in. Best partnership I've ever had.",
-  },
-  {
-    name: "Mia R.",
-    handle: "@miatastesworld",
-    text: "Hit 200 subscribers in my first month. The £25 per sub really adds up. Plus, they cover food expenses after your first two videos!",
   },
 ];
 
@@ -124,7 +105,7 @@ const benefits = [
 /* ───────── Stats ───────── */
 const stats = [
   { value: "7,000+", label: "Partner Restaurants" },
-  { value: "£25", label: "Per Subscription" },
+  { value: "£20", label: "Per Subscription" },
   { value: "4", label: "Countries Active" },
   { value: "£80K+", label: "Top Earner" },
 ];
@@ -274,7 +255,7 @@ function HubSpotForm() {
 /* ───────── Landing Page ───────── */
 export default function LandingPage() {
   const [subscribers, setSubscribers] = useState(50);
-  const earnings = subscribers * 25;
+  const earnings = subscribers * 20;
   const annualEarnings = earnings * 12;
 
   return (
@@ -319,7 +300,7 @@ export default function LandingPage() {
           </div>
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-800 leading-tight mb-6">
             Earn{" "}
-            <span className="text-neo-green">£25</span> for every
+            <span className="text-neo-green">£20</span> for every
             <br />
             NeoTaste subscriber
           </h1>
@@ -465,7 +446,7 @@ export default function LandingPage() {
                 </div>
               </div>
               <div className="mt-4 text-sm opacity-60">
-                Based on {subscribers} subscribers × £25 per subscription
+                Based on {subscribers} subscribers × £20 per subscription
               </div>
             </div>
           </div>
@@ -494,39 +475,6 @@ export default function LandingPage() {
                   className="w-full h-full border-0"
                   title={`Partner Video ${i + 1}`}
                 />
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ─── Testimonials ─── */}
-      <section className="py-24 px-6">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">
-            What partners say
-          </h2>
-          <p className="text-white/50 text-center mb-12">
-            Hear from partners already in the program.
-          </p>
-          <div className="grid md:grid-cols-3 gap-6">
-            {testimonials.map((t) => (
-              <div
-                key={t.name}
-                className="bg-neo-dark-card border border-neo-dark-light rounded-2xl p-6"
-              >
-                <svg
-                  className="w-8 h-8 text-neo-green/40 mb-4"
-                  fill="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983z" />
-                </svg>
-                <p className="text-white/70 leading-relaxed mb-4">{t.text}</p>
-                <div>
-                  <div className="font-semibold">{t.name}</div>
-                  <div className="text-neo-green text-sm">{t.handle}</div>
-                </div>
               </div>
             ))}
           </div>
