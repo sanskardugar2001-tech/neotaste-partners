@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { NeoTasteLogo } from "@/components/NeoTasteLogo";
 import InvoicesTab from "@/components/InvoicesTab";
 import VideosTab from "@/components/VideosTab";
 import { supabase } from "@/lib/supabase";
+import type { FlashDeal } from "@/lib/supabase";
 
 /* ───────── Mock Data ───────── */
 const VOUCHER_CODE = "CREATOR47";
@@ -184,11 +185,179 @@ function BarChart() {
   );
 }
 
+/* ───────── NeoTaste Cities ───────── */
+const NEOTASTE_CITIES = [
+  "London",
+  "Manchester",
+  "Birmingham",
+  "Bristol",
+  "Leeds",
+  "Liverpool",
+  "Edinburgh",
+  "Berlin",
+  "Munich",
+  "Hamburg",
+  "Cologne",
+  "Frankfurt",
+  "Vienna",
+  "Paris",
+];
+
+/* ───────── Flash Deals Section ───────── */
+function FlashDealsSection() {
+  const [selectedCity, setSelectedCity] = useState<string>("");
+  const [deals, setDeals] = useState<FlashDeal[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  // Restore saved city on mount
+  useEffect(() => {
+    const saved = localStorage.getItem("neotaste_city");
+    if (saved) setSelectedCity(saved);
+  }, []);
+
+  const fetchDeals = useCallback(async (city: string) => {
+    if (!city) return;
+    setLoading(true);
+    setError("");
+    try {
+      const res = await fetch(`/api/deals?city=${encodeURIComponent(city)}`);
+      if (!res.ok) throw new Error("Failed to fetch deals");
+      const data: FlashDeal[] = await res.json();
+      setDeals(data);
+    } catch {
+      setError("Could not load flash deals. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  // Fetch deals when city changes
+  useEffect(() => {
+    if (selectedCity) {
+      localStorage.setItem("neotaste_city", selectedCity);
+      fetchDeals(selectedCity);
+    }
+  }, [selectedCity, fetchDeals]);
+
+  const handleCityChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedCity(e.target.value);
+  };
+
+  const formatDate = (dateStr: string) => {
+    const d = new Date(dateStr);
+    return d.toLocaleDateString("en-GB", { day: "numeric", month: "short" });
+  };
+
+  return (
+    <div className="bg-neo-dark-card border border-neo-dark-light rounded-2xl p-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
+        <div>
+          <h3 className="text-lg font-semibold flex items-center gap-2">
+            <svg className="w-5 h-5 text-neo-green" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+            Flash Deals
+          </h3>
+          <p className="text-sm text-white/40 mt-0.5">
+            Upcoming restaurant deals in your city — film these for content!
+          </p>
+        </div>
+        <select
+          value={selectedCity}
+          onChange={handleCityChange}
+          className="bg-neo-dark border border-neo-dark-light rounded-xl px-4 py-2.5 text-sm text-white focus:border-neo-green focus:outline-none transition-colors min-w-[180px]"
+        >
+          <option value="">Select your city</option>
+          {NEOTASTE_CITIES.map((city) => (
+            <option key={city} value={city}>
+              {city}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {!selectedCity && (
+        <div className="border border-dashed border-neo-dark-light rounded-xl p-8 text-center">
+          <svg className="w-10 h-10 text-white/20 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+          <p className="text-white/40 text-sm">
+            Pick your city above to see upcoming flash deals
+          </p>
+        </div>
+      )}
+
+      {selectedCity && loading && (
+        <div className="flex items-center justify-center py-10">
+          <div className="w-5 h-5 border-2 border-neo-green/30 border-t-neo-green rounded-full animate-spin" />
+        </div>
+      )}
+
+      {selectedCity && error && (
+        <div className="bg-red-500/10 border border-red-500/30 rounded-xl px-4 py-3 text-red-400 text-sm">
+          {error}
+        </div>
+      )}
+
+      {selectedCity && !loading && !error && deals.length === 0 && (
+        <div className="border border-dashed border-neo-dark-light rounded-xl p-8 text-center">
+          <p className="text-white/40 text-sm">
+            No upcoming flash deals in {selectedCity} right now. Check back soon!
+          </p>
+        </div>
+      )}
+
+      {selectedCity && !loading && deals.length > 0 && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          {deals.map((deal) => (
+            <div
+              key={deal.id}
+              className="bg-neo-dark border border-neo-dark-light/50 rounded-xl p-4 hover:border-neo-green/30 transition-colors"
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex-1 min-w-0">
+                  <h4 className="font-semibold text-white text-sm truncate">
+                    {deal.restaurant_name}
+                  </h4>
+                  <p className="text-neo-green font-bold text-lg mt-0.5">
+                    {deal.deal_offer}
+                  </p>
+                </div>
+                <div className="shrink-0 bg-neo-green/10 border border-neo-green/20 rounded-lg px-2.5 py-1.5 text-center">
+                  <p className="text-[10px] text-neo-green/70 uppercase tracking-wider font-medium">
+                    Starts
+                  </p>
+                  <p className="text-xs text-neo-green font-semibold">
+                    {formatDate(deal.start_date)}
+                  </p>
+                </div>
+              </div>
+              <div className="mt-3 flex items-center gap-2 text-xs text-white/40">
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <span>
+                  {formatDate(deal.start_date)} – {formatDate(deal.end_date)}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 /* ───────── Dashboard Tabs ───────── */
 
 function OverviewTab() {
   return (
     <div className="space-y-6">
+      {/* Flash Deals */}
+      <FlashDealsSection />
+
       {/* Voucher Code Card */}
       <div className="bg-neo-dark-card border border-neo-dark-light rounded-2xl p-6">
         <h3 className="text-sm text-white/50 mb-3">Your Voucher Code</h3>

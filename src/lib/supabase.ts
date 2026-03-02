@@ -66,3 +66,12 @@ export interface Creator {
   voucher_code: string;
   created_at: string;
 }
+
+export interface FlashDeal {
+  id: string;
+  restaurant_name: string;
+  deal_offer: string;
+  start_date: string;
+  end_date: string;
+  city: string;
+}
