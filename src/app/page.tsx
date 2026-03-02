@@ -24,7 +24,7 @@ const faqItems = [
   },
   {
     q: "Is there a minimum or maximum payout?",
-    a: "There is no minimum or maximum payout. Our top referrer has earned over £80,000 through the program.",
+    a: "There is no minimum or maximum payout. Our top referrer has earned over £30,000 through the program.",
   },
   {
     q: "Are there any deliverables?",
@@ -107,7 +107,7 @@ const stats = [
   { value: "7,000+", label: "Partner Restaurants" },
   { value: "£20", label: "Per Subscription" },
   { value: "4", label: "Countries Active" },
-  { value: "£80K+", label: "Top Earner" },
+  { value: "£30K+", label: "Top Earner" },
 ];
 
 /* ───────── Creator Videos ───────── */
