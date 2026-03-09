@@ -276,6 +276,9 @@ export default function LandingPage() {
             <Link href="/dashboard" className="text-sm text-white/70 hover:text-white transition-colors">
               Partner Portal
             </Link>
+            <Link href="/admin" className="text-sm text-white/70 hover:text-white transition-colors">
+              Admin
+            </Link>
             <a
               href="#apply"
               className="bg-neo-green text-neo-dark px-5 py-2 rounded-lg font-semibold text-sm hover:bg-neo-green/90 transition-colors"

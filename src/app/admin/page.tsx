@@ -904,12 +904,10 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
 }
 
 /* ═══════════════════════════════════════════
-   ADMIN EMAIL WHITELIST
+   ADMIN ACCESS — any @neotaste.app email
    ═══════════════════════════════════════════ */
-const ADMIN_EMAILS = [
-  "sanskar.dugar@neotaste.app",
-  "lara.maertens@neotaste.app",
-];
+const isAdminEmail = (email: string) =>
+  email.toLowerCase().endsWith("@neotaste.app");
 
 /* ═══════════════════════════════════════════
    PAGE
@@ -942,7 +940,7 @@ export default function AdminPage() {
         setAuthed(!!session);
         if (session?.user?.email) {
           setIsAdmin(
-            ADMIN_EMAILS.includes(session.user.email.toLowerCase())
+            isAdminEmail(session.user.email)
           );
         }
         setChecking(false);
@@ -962,7 +960,7 @@ export default function AdminPage() {
       setAuthed(!!session);
       if (session?.user?.email) {
         setIsAdmin(
-          ADMIN_EMAILS.includes(session.user.email.toLowerCase())
+          isAdminEmail(session.user.email)
         );
       } else {
         setIsAdmin(false);
