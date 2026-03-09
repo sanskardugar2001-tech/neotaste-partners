@@ -168,15 +168,15 @@ export async function GET(request: NextRequest) {
   // Try Notion first; fall back to mock data if not configured
   const notionResult = await fetchDealsFromNotion();
   let deals = notionResult.deals;
-  let source = "notion";
 
-  if (deals.length === 0 && !notionResult.error) {
-    // Notion returned 0 results but no error — might be empty database
+  const source = notionResult.error
+    ? `mock (${notionResult.error})`
+    : deals.length === 0
+      ? "mock (notion returned 0 results)"
+      : "notion";
+
+  if (deals.length === 0) {
     deals = MOCK_DEALS;
-    source = "mock (notion returned 0 results)";
-  } else if (notionResult.error) {
-    deals = MOCK_DEALS;
-    source = `mock (${notionResult.error})`;
   }
 
   // Filter by city (case-insensitive)
