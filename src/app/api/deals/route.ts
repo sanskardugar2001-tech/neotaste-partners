@@ -28,13 +28,24 @@ function getTextContent(prop: NotionPropertyValue | undefined): string {
   return "";
 }
 
+function findProperty(props: Record<string, NotionPropertyValue>, startsWith: string, type?: string): NotionPropertyValue | undefined {
+  for (const [key, val] of Object.entries(props)) {
+    if (key.toLowerCase().startsWith(startsWith.toLowerCase())) {
+      if (!type || val.type === type) return val;
+    }
+  }
+  return undefined;
+}
+
 function parseNotionPage(page: NotionPage): FlashDeal {
   const p = page.properties;
   const timing = p["Timing"]?.date;
+  // "Event deal £" has encoding issues — find by prefix + type instead
+  const dealOfferProp = findProperty(p, "Event deal", "rich_text");
   return {
     id: page.id,
     restaurant_name: getTextContent(p["In-App name"]),
-    deal_offer: getTextContent(p["Event deal £"]),
+    deal_offer: getTextContent(dealOfferProp),
     start_date: timing?.start ?? "",
     end_date: timing?.end ?? timing?.start ?? "",
     city:
