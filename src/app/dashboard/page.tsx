@@ -206,41 +206,91 @@ function BarChart({ data }: { data: { month: string; count: number }[] }) {
 
 /* ───────── NeoTaste Cities ───────── */
 const NEOTASTE_CITIES = [
-  "London",
-  "Manchester",
-  "Birmingham",
-  "Bristol",
-  "Leeds",
-  "Liverpool",
-  "Edinburgh",
-  "Berlin",
-  "Munich",
-  "Hamburg",
-  "Cologne",
-  "Frankfurt",
+  // Germany
+  "Aachen", "Augsburg", "Berlin", "Bielefeld", "Bochum", "Bonn", "Bremen",
+  "Cologne", "Darmstadt", "Dortmund", "Dresden", "Duisburg", "Düsseldorf",
+  "Essen", "Frankfurt", "Freiburg", "Halle (Saale)", "Hamburg", "Hannover",
+  "Heidelberg", "Karlsruhe", "Kassel", "Kiel", "Leipzig", "Magdeburg",
+  "Mainz", "Mannheim", "Munich", "Münster", "Nuremberg", "Oldenburg",
+  "Osnabrück", "Potsdam", "Regensburg", "Rostock", "Stuttgart", "Wiesbaden",
+  "Wuppertal", "Würzburg",
+  // United Kingdom
+  "Birmingham", "Brighton", "Leeds", "Liverpool", "London", "Manchester",
+  "Sheffield",
+  // Netherlands
+  "Amsterdam", "Haarlem", "Leiden", "Rotterdam", "The Hague", "Utrecht",
+  // Austria
   "Vienna",
-  "Paris",
 ];
 
+/* ───────── City Selection Modal (shown on first login) ───────── */
+function CitySelectionModal({
+  onSelect,
+}: {
+  onSelect: (city: string) => void;
+}) {
+  const [chosen, setChosen] = useState("");
+
+  return (
+    <div className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex items-center justify-center px-6">
+      <div className="bg-neo-dark-card border border-neo-dark-light rounded-2xl p-8 max-w-md w-full">
+        <div className="text-center mb-6">
+          <div className="w-14 h-14 rounded-full bg-neo-green/20 flex items-center justify-center mx-auto mb-4">
+            <svg className="w-7 h-7 text-neo-green" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+          </div>
+          <h2 className="text-xl font-bold text-white">
+            Welcome! What city are you in?
+          </h2>
+          <p className="text-sm text-white/50 mt-2">
+            We&apos;ll show you flash deals from restaurants in your city so you
+            can create content for them.
+          </p>
+        </div>
+        <select
+          value={chosen}
+          onChange={(e) => setChosen(e.target.value)}
+          className="w-full bg-neo-dark border border-neo-dark-light rounded-xl px-4 py-3 text-sm text-white focus:border-neo-green focus:outline-none transition-colors mb-4"
+        >
+          <option value="">Select your city</option>
+          {NEOTASTE_CITIES.map((city) => (
+            <option key={city} value={city}>
+              {city}
+            </option>
+          ))}
+        </select>
+        <button
+          onClick={() => chosen && onSelect(chosen)}
+          disabled={!chosen}
+          className="w-full bg-neo-green text-neo-dark py-3 rounded-xl font-semibold text-sm hover:bg-neo-green/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+        >
+          Continue
+        </button>
+      </div>
+    </div>
+  );
+}
+
 /* ───────── Flash Deals Section ───────── */
-function FlashDealsSection() {
-  const [selectedCity, setSelectedCity] = useState<string>("");
+function FlashDealsSection({
+  city,
+  onChangeCity,
+}: {
+  city: string;
+  onChangeCity: () => void;
+}) {
   const [deals, setDeals] = useState<FlashDeal[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // Restore saved city on mount
-  useEffect(() => {
-    const saved = localStorage.getItem("neotaste_city");
-    if (saved) setSelectedCity(saved);
-  }, []);
-
-  const fetchDeals = useCallback(async (city: string) => {
-    if (!city) return;
+  const fetchDeals = useCallback(async (c: string) => {
+    if (!c) return;
     setLoading(true);
     setError("");
     try {
-      const res = await fetch(`/api/deals?city=${encodeURIComponent(city)}`);
+      const res = await fetch(`/api/deals?city=${encodeURIComponent(c)}`);
       if (!res.ok) throw new Error("Failed to fetch deals");
       const data: FlashDeal[] = await res.json();
       setDeals(data);
@@ -251,17 +301,9 @@ function FlashDealsSection() {
     }
   }, []);
 
-  // Fetch deals when city changes
   useEffect(() => {
-    if (selectedCity) {
-      localStorage.setItem("neotaste_city", selectedCity);
-      fetchDeals(selectedCity);
-    }
-  }, [selectedCity, fetchDeals]);
-
-  const handleCityChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedCity(e.target.value);
-  };
+    if (city) fetchDeals(city);
+  }, [city, fetchDeals]);
 
   const formatDate = (dateStr: string) => {
     const d = new Date(dateStr);
@@ -276,59 +318,45 @@ function FlashDealsSection() {
             <svg className="w-5 h-5 text-neo-green" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
             </svg>
-            Flash Deals
+            Flash Deals in {city}
           </h3>
           <p className="text-sm text-white/40 mt-0.5">
-            Upcoming restaurant deals in your city — film these for content!
+            Upcoming restaurant deals — film these for content!
           </p>
         </div>
-        <select
-          value={selectedCity}
-          onChange={handleCityChange}
-          className="bg-neo-dark border border-neo-dark-light rounded-xl px-4 py-2.5 text-sm text-white focus:border-neo-green focus:outline-none transition-colors min-w-[180px]"
+        <button
+          onClick={onChangeCity}
+          className="text-xs text-white/40 hover:text-white transition-colors flex items-center gap-1"
         >
-          <option value="">Select your city</option>
-          {NEOTASTE_CITIES.map((city) => (
-            <option key={city} value={city}>
-              {city}
-            </option>
-          ))}
-        </select>
+          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+          Change city
+        </button>
       </div>
 
-      {!selectedCity && (
-        <div className="border border-dashed border-neo-dark-light rounded-xl p-8 text-center">
-          <svg className="w-10 h-10 text-white/20 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-          </svg>
-          <p className="text-white/40 text-sm">
-            Pick your city above to see upcoming flash deals
-          </p>
-        </div>
-      )}
-
-      {selectedCity && loading && (
+      {loading && (
         <div className="flex items-center justify-center py-10">
           <div className="w-5 h-5 border-2 border-neo-green/30 border-t-neo-green rounded-full animate-spin" />
         </div>
       )}
 
-      {selectedCity && error && (
+      {error && (
         <div className="bg-red-500/10 border border-red-500/30 rounded-xl px-4 py-3 text-red-400 text-sm">
           {error}
         </div>
       )}
 
-      {selectedCity && !loading && !error && deals.length === 0 && (
+      {!loading && !error && deals.length === 0 && (
         <div className="border border-dashed border-neo-dark-light rounded-xl p-8 text-center">
           <p className="text-white/40 text-sm">
-            No upcoming flash deals in {selectedCity} right now. Check back soon!
+            No upcoming flash deals in {city} right now. Check back soon!
           </p>
         </div>
       )}
 
-      {selectedCity && !loading && deals.length > 0 && (
+      {!loading && deals.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {deals.map((deal) => (
             <div
@@ -360,6 +388,11 @@ function FlashDealsSection() {
                 <span>
                   {formatDate(deal.start_date)} – {formatDate(deal.end_date)}
                 </span>
+                {deal.deals_per_day && (
+                  <span className="ml-auto text-neo-green/60">
+                    {deal.deals_per_day} deals/day
+                  </span>
+                )}
               </div>
             </div>
           ))}
@@ -376,6 +409,9 @@ function OverviewTab() {
   const [statsLoading, setStatsLoading] = useState(true);
   const [voucherCode, setVoucherCode] = useState("");
   const [referralLink, setReferralLink] = useState("");
+  const [creatorCity, setCreatorCity] = useState<string>("");
+  const [showCityModal, setShowCityModal] = useState(false);
+  const [cityLoaded, setCityLoaded] = useState(false);
 
   // Fetch creator info + live stats
   useEffect(() => {
@@ -384,10 +420,10 @@ function OverviewTab() {
         const { data: { session } } = await supabase.auth.getSession();
         if (!session) return;
 
-        // Get creator's voucher code from Supabase
+        // Get creator's voucher code and city from Supabase
         const { data: creator } = await supabase
           .from("creators")
-          .select("voucher_code")
+          .select("voucher_code, city")
           .eq("id", session.user.id)
           .single();
 
@@ -397,6 +433,14 @@ function OverviewTab() {
             `https://neotaste.com/gb?code=${creator.voucher_code}&a=3`
           );
         }
+
+        // Check if city is set — if not, show the modal
+        if (creator?.city) {
+          setCreatorCity(creator.city);
+        } else {
+          setShowCityModal(true);
+        }
+        setCityLoaded(true);
 
         // Fetch stats from Snowflake API
         const res = await fetch("/api/stats", {
@@ -409,7 +453,7 @@ function OverviewTab() {
         }
       } catch (err) {
         console.error("Failed to load stats:", err);
-        // Keep fallback stats on error
+        setCityLoaded(true);
       } finally {
         setStatsLoading(false);
       }
@@ -418,13 +462,42 @@ function OverviewTab() {
     loadStats();
   }, []);
 
+  // Save city to Supabase when selected from modal
+  const handleCitySelect = async (city: string) => {
+    setCreatorCity(city);
+    setShowCityModal(false);
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        await supabase
+          .from("creators")
+          .update({ city })
+          .eq("id", session.user.id);
+      }
+    } catch (err) {
+      console.error("Failed to save city:", err);
+    }
+  };
+
+  const handleChangeCity = () => {
+    setShowCityModal(true);
+  };
+
   const displayCode = voucherCode || "LOADING...";
   const displayLink = referralLink || "";
 
   return (
     <div className="space-y-6">
-      {/* Flash Deals */}
-      <FlashDealsSection />
+      {/* City selection modal — shown on first login or when changing city */}
+      {showCityModal && (
+        <CitySelectionModal onSelect={handleCitySelect} />
+      )}
+
+      {/* Flash Deals — only show once city is loaded */}
+      {cityLoaded && creatorCity && (
+        <FlashDealsSection city={creatorCity} onChangeCity={handleChangeCity} />
+      )}
 
       {/* Voucher Code Card */}
       <div className="bg-neo-dark-card border border-neo-dark-light rounded-2xl p-6">
