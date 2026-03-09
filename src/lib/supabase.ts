@@ -74,4 +74,5 @@ export interface FlashDeal {
   start_date: string;
   end_date: string;
   city: string;
+  deals_per_day?: number;
 }

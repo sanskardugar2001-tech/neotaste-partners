@@ -6,8 +6,10 @@ import type { FlashDeal } from "@/lib/supabase";
 interface NotionPropertyValue {
   title?: { text: { content: string } }[];
   rich_text?: { text: { content: string } }[];
-  date?: { start: string };
+  date?: { start: string; end: string | null };
   select?: { name: string };
+  multi_select?: { name: string }[];
+  number?: number | null;
 }
 
 interface NotionPage {
@@ -17,13 +19,20 @@ interface NotionPage {
 
 function parseNotionPage(page: NotionPage): FlashDeal {
   const p = page.properties;
+  const timing = p["Timing"]?.date;
   return {
     id: page.id,
-    restaurant_name: p.Name?.title?.[0]?.text?.content ?? "",
-    deal_offer: p.Deal?.rich_text?.[0]?.text?.content ?? "",
-    start_date: p["Start Date"]?.date?.start ?? "",
-    end_date: p["End Date"]?.date?.start ?? p["Start Date"]?.date?.start ?? "",
-    city: p.City?.select?.name ?? "",
+    restaurant_name:
+      p["In-App name"]?.rich_text?.[0]?.text?.content ?? "",
+    deal_offer:
+      p["Event Deal."]?.rich_text?.[0]?.text?.content ?? "",
+    start_date: timing?.start ?? "",
+    end_date: timing?.end ?? timing?.start ?? "",
+    city:
+      p["Location (City)"]?.multi_select?.[0]?.name ??
+      p["Location (City)"]?.select?.name ??
+      "",
+    deals_per_day: p["Deals per Day"]?.number ?? undefined,
   };
 }
 
