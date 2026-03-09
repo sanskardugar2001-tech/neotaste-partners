@@ -45,7 +45,7 @@ function parseNotionPage(page: NotionPage): FlashDeal {
   };
 }
 
-async function fetchDealsFromNotion(): Promise<{ deals: FlashDeal[]; error?: string; raw_count?: number }> {
+async function fetchDealsFromNotion(): Promise<{ deals: FlashDeal[]; error?: string; raw_count?: number; raw_pages?: NotionPage[] }> {
   const token = process.env.NOTION_API_KEY;
   const dbId = process.env.NOTION_DATABASE_ID;
 
@@ -89,7 +89,7 @@ async function fetchDealsFromNotion(): Promise<{ deals: FlashDeal[]; error?: str
 
     console.log(`Notion returned ${allPages.length} total pages`);
     const deals = allPages.map(parseNotionPage);
-    return { deals, raw_count: allPages.length };
+    return { deals, raw_count: allPages.length, raw_pages: allPages };
   } catch (err) {
     console.error("Notion fetch error:", err);
     return { deals: [], error: `Fetch error: ${err instanceof Error ? err.message : String(err)}` };
@@ -196,6 +196,27 @@ export async function GET(request: NextRequest) {
   const filtered = deals
     .filter((d) => d.city.toLowerCase() === city.toLowerCase())
     .filter((d) => new Date(d.end_date) >= new Date());
+
+  if (debug === "raw" && notionResult.raw_pages && notionResult.raw_pages.length > 0) {
+    // Show raw property names and types from the first matching page
+    const sample = notionResult.raw_pages.find(
+      (pg) => {
+        const city_val =
+          pg.properties["Location (City)"]?.multi_select?.[0]?.name ??
+          pg.properties["Location (City)"]?.select?.name ?? "";
+        return city_val.toLowerCase() === city.toLowerCase();
+      }
+    ) ?? notionResult.raw_pages[0];
+    const propSummary: Record<string, { type: string; value: string }> = {};
+    for (const [key, val] of Object.entries(sample.properties)) {
+      const v = val as NotionPropertyValue;
+      propSummary[key] = {
+        type: v.type ?? "unknown",
+        value: getTextContent(v) || (v.number != null ? String(v.number) : (v.select?.name ?? v.multi_select?.[0]?.name ?? v.date?.start ?? "")),
+      };
+    }
+    return NextResponse.json({ sample_id: sample.id, properties: propSummary });
+  }
 
   if (debug) {
     return NextResponse.json({
