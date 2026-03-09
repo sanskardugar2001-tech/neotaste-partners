@@ -54,29 +54,42 @@ async function fetchDealsFromNotion(): Promise<{ deals: FlashDeal[]; error?: str
   }
 
   try {
-    const res = await fetch(`https://api.notion.com/v1/databases/${dbId}/query`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Notion-Version": "2022-06-28",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({}),
-      cache: "no-store", // always fetch fresh data
-    });
+    let allPages: NotionPage[] = [];
+    let hasMore = true;
+    let startCursor: string | undefined = undefined;
 
-    if (!res.ok) {
-      const errorText = await res.text();
-      console.error("Notion API error:", res.status, errorText);
-      return { deals: [], error: `Notion API ${res.status}: ${errorText}` };
+    // Paginate through all results (Notion returns max 100 per request)
+    while (hasMore) {
+      const body: Record<string, unknown> = {};
+      if (startCursor) body.start_cursor = startCursor;
+
+      const res = await fetch(`https://api.notion.com/v1/databases/${dbId}/query`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Notion-Version": "2022-06-28",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+        cache: "no-store",
+      });
+
+      if (!res.ok) {
+        const errorText = await res.text();
+        console.error("Notion API error:", res.status, errorText);
+        return { deals: [], error: `Notion API ${res.status}: ${errorText}` };
+      }
+
+      const data = await res.json();
+      const pages = data.results as NotionPage[];
+      allPages = allPages.concat(pages);
+      hasMore = data.has_more === true;
+      startCursor = data.next_cursor ?? undefined;
     }
 
-    const data = await res.json();
-    const pages = data.results as NotionPage[];
-    console.log(`Notion returned ${pages.length} pages`);
-
-    const deals = pages.map(parseNotionPage);
-    return { deals, raw_count: pages.length };
+    console.log(`Notion returned ${allPages.length} total pages`);
+    const deals = allPages.map(parseNotionPage);
+    return { deals, raw_count: allPages.length };
   } catch (err) {
     console.error("Notion fetch error:", err);
     return { deals: [], error: `Fetch error: ${err instanceof Error ? err.message : String(err)}` };
