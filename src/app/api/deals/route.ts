@@ -191,7 +191,7 @@ export async function GET(request: NextRequest) {
       notion_error: notionResult.error ?? null,
       total_deals: deals.length,
       city_filter: city,
-      all_cities: [...new Set(deals.map((d) => d.city))],
+      all_cities: Array.from(new Set(deals.map((d) => d.city))),
       filtered_count: filtered.length,
       deals: filtered,
     });
