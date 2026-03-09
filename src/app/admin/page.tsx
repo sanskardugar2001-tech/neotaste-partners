@@ -904,10 +904,19 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
 }
 
 /* ═══════════════════════════════════════════
+   ADMIN EMAIL WHITELIST
+   ═══════════════════════════════════════════ */
+const ADMIN_EMAILS = [
+  "sanskar.dugar@neotaste.app",
+  "lara.maertens@neotaste.app",
+];
+
+/* ═══════════════════════════════════════════
    PAGE
    ═══════════════════════════════════════════ */
 export default function AdminPage() {
   const [authed, setAuthed] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [checking, setChecking] = useState(true);
   const [connError, setConnError] = useState("");
 
@@ -929,7 +938,13 @@ export default function AdminPage() {
           setChecking(false);
           return;
         }
-        setAuthed(!!data.session);
+        const session = data.session;
+        setAuthed(!!session);
+        if (session?.user?.email) {
+          setIsAdmin(
+            ADMIN_EMAILS.includes(session.user.email.toLowerCase())
+          );
+        }
         setChecking(false);
       })
       .catch((err) => {
@@ -945,6 +960,13 @@ export default function AdminPage() {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setAuthed(!!session);
+      if (session?.user?.email) {
+        setIsAdmin(
+          ADMIN_EMAILS.includes(session.user.email.toLowerCase())
+        );
+      } else {
+        setIsAdmin(false);
+      }
     });
 
     return () => {
@@ -1010,6 +1032,30 @@ export default function AdminPage() {
 
   if (!authed) {
     return <LoginForm onLogin={() => setAuthed(true)} />;
+  }
+
+  if (!isAdmin) {
+    return (
+      <div className="min-h-screen bg-neo-dark flex items-center justify-center px-6">
+        <div className="max-w-md text-center">
+          <div className="w-12 h-12 rounded-full bg-red-500/20 flex items-center justify-center mx-auto mb-4">
+            <svg className="w-6 h-6 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
+          </div>
+          <h2 className="text-xl font-bold text-white mb-2">Access Denied</h2>
+          <p className="text-white/50 text-sm mb-6">
+            Your account does not have admin access. Contact your team administrator if you need access.
+          </p>
+          <button
+            onClick={handleLogout}
+            className="bg-neo-dark-light text-white px-6 py-2.5 rounded-xl font-semibold text-sm hover:bg-neo-dark-light/80 transition-colors"
+          >
+            Sign Out
+          </button>
+        </div>
+      </div>
+    );
   }
 
   return <AdminDashboard onLogout={handleLogout} />;

@@ -9,18 +9,30 @@ import VideosTab from "@/components/VideosTab";
 import { supabase } from "@/lib/supabase";
 import type { FlashDeal } from "@/lib/supabase";
 
-/* ───────── Mock Data ───────── */
-const VOUCHER_CODE = "CREATOR47";
-const REFERRAL_LINK = "https://neotaste.com/gb?code=CREATOR47&a=3";
+/* ───────── Types ───────── */
+interface DashboardStats {
+  codesRedeemed: number;
+  annualSubscribers: number;
+  monthlySubscribers: number;
+  totalEarnings: number;
+  monthlyReferrals: { month: string; count: number }[];
+}
 
-const monthlyReferrals = [
-  { month: "Sep", count: 4 },
-  { month: "Oct", count: 8 },
-  { month: "Nov", count: 5 },
-  { month: "Dec", count: 12 },
-  { month: "Jan", count: 6 },
-  { month: "Feb", count: 12 },
-];
+/* ───────── Fallback Mock Data ───────── */
+const FALLBACK_STATS: DashboardStats = {
+  codesRedeemed: 47,
+  annualSubscribers: 28,
+  monthlySubscribers: 19,
+  totalEarnings: 940,
+  monthlyReferrals: [
+    { month: "Sep", count: 4 },
+    { month: "Oct", count: 8 },
+    { month: "Nov", count: 5 },
+    { month: "Dec", count: 12 },
+    { month: "Jan", count: 6 },
+    { month: "Feb", count: 12 },
+  ],
+};
 
 const paymentHistory = [
   { date: "Feb 2024", referrals: 12, amount: 300, status: "pending" },
@@ -80,10 +92,10 @@ function CopyButton({ text, label }: { text: string; label?: string }) {
   );
 }
 
-function ShareButtons() {
-  const shareText = `Use my code ${VOUCHER_CODE} to get NeoTaste!`;
+function ShareButtons({ code, link }: { code: string; link: string }) {
+  const shareText = `Use my code ${code} to get NeoTaste!`;
   const encodedText = encodeURIComponent(shareText);
-  const encodedUrl = encodeURIComponent(REFERRAL_LINK);
+  const encodedUrl = encodeURIComponent(link);
 
   return (
     <div className="flex gap-2">
@@ -121,7 +133,7 @@ function ShareButtons() {
           <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z" />
         </svg>
       </button>
-      <CopyButton text={REFERRAL_LINK} label="Copy" />
+      <CopyButton text={link} label="Copy" />
     </div>
   );
 }
@@ -166,12 +178,19 @@ function InvoiceFAQItem({ q, a }: { q: string; a: string }) {
 }
 
 /* ───────── Bar Chart ───────── */
-function BarChart() {
-  const maxCount = Math.max(...monthlyReferrals.map((m) => m.count));
+function BarChart({ data }: { data: { month: string; count: number }[] }) {
+  if (data.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-48 text-white/30 text-sm">
+        No referral data yet
+      </div>
+    );
+  }
+  const maxCount = Math.max(...data.map((m) => m.count), 1);
 
   return (
     <div className="flex items-end gap-4 h-48">
-      {monthlyReferrals.map((m) => (
+      {data.map((m) => (
         <div key={m.month} className="flex-1 flex flex-col items-center gap-2">
           <span className="text-xs text-white/60">{m.count}</span>
           <div
@@ -353,6 +372,55 @@ function FlashDealsSection() {
 /* ───────── Dashboard Tabs ───────── */
 
 function OverviewTab() {
+  const [stats, setStats] = useState<DashboardStats>(FALLBACK_STATS);
+  const [statsLoading, setStatsLoading] = useState(true);
+  const [voucherCode, setVoucherCode] = useState("");
+  const [referralLink, setReferralLink] = useState("");
+
+  // Fetch creator info + live stats
+  useEffect(() => {
+    async function loadStats() {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) return;
+
+        // Get creator's voucher code from Supabase
+        const { data: creator } = await supabase
+          .from("creators")
+          .select("voucher_code")
+          .eq("id", session.user.id)
+          .single();
+
+        if (creator?.voucher_code) {
+          setVoucherCode(creator.voucher_code);
+          setReferralLink(
+            `https://neotaste.com/gb?code=${creator.voucher_code}&a=3`
+          );
+        }
+
+        // Fetch stats from Snowflake API
+        const res = await fetch("/api/stats", {
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        });
+
+        if (res.ok) {
+          const data: DashboardStats = await res.json();
+          setStats(data);
+        }
+      } catch (err) {
+        console.error("Failed to load stats:", err);
+        // Keep fallback stats on error
+      } finally {
+        setStatsLoading(false);
+      }
+    }
+
+    loadStats();
+  }, []);
+
+  const displayCode = voucherCode || "LOADING...";
+  const displayLink = referralLink || "";
+
   return (
     <div className="space-y-6">
       {/* Flash Deals */}
@@ -363,69 +431,93 @@ function OverviewTab() {
         <h3 className="text-sm text-white/50 mb-3">Your Voucher Code</h3>
         <div className="flex items-center justify-between mb-4">
           <code className="text-3xl font-bold text-neo-green tracking-wider">
-            {VOUCHER_CODE}
+            {displayCode}
           </code>
-          <CopyButton text={VOUCHER_CODE} label="Copy Code" />
+          {voucherCode && <CopyButton text={voucherCode} label="Copy Code" />}
         </div>
-        <div className="border-t border-neo-dark-light pt-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div>
-              <p className="text-xs text-white/40 mb-1">Referral Link</p>
-              <p className="text-sm text-white/70 break-all">{REFERRAL_LINK}</p>
+        {displayLink && (
+          <div className="border-t border-neo-dark-light pt-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <p className="text-xs text-white/40 mb-1">Referral Link</p>
+                <p className="text-sm text-white/70 break-all">{displayLink}</p>
+              </div>
+              <ShareButtons code={voucherCode} link={displayLink} />
             </div>
-            <ShareButtons />
           </div>
-        </div>
+        )}
       </div>
 
       {/* Stat Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-neo-dark-card border border-neo-dark-light rounded-2xl p-6">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-white/50">Code Uses</span>
-            <div className="w-8 h-8 rounded-lg bg-neo-green/20 flex items-center justify-center">
-              <svg className="w-4 h-4 text-neo-green" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" />
-              </svg>
+      {statsLoading ? (
+        <div className="flex items-center justify-center py-12">
+          <div className="w-5 h-5 border-2 border-neo-green/30 border-t-neo-green rounded-full animate-spin" />
+        </div>
+      ) : (
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Codes Redeemed */}
+            <div className="bg-neo-dark-card border border-neo-dark-light rounded-2xl p-6">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm text-white/50">Codes Redeemed</span>
+                <div className="w-8 h-8 rounded-lg bg-neo-green/20 flex items-center justify-center">
+                  <svg className="w-4 h-4 text-neo-green" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" />
+                  </svg>
+                </div>
+              </div>
+              <div className="text-3xl font-bold">{stats.codesRedeemed}</div>
+            </div>
+
+            {/* Conversions — Annual / Monthly */}
+            <div className="bg-neo-dark-card border border-neo-dark-light rounded-2xl p-6">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm text-white/50">Conversions</span>
+                <div className="w-8 h-8 rounded-lg bg-neo-green/20 flex items-center justify-center">
+                  <svg className="w-4 h-4 text-neo-green" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                  </svg>
+                </div>
+              </div>
+              <div className="text-3xl font-bold">
+                {stats.annualSubscribers + stats.monthlySubscribers}
+              </div>
+              <div className="flex gap-3 mt-1 text-xs">
+                <span className="text-neo-green">
+                  {stats.annualSubscribers} annual
+                </span>
+                <span className="text-blue-400">
+                  {stats.monthlySubscribers} monthly
+                </span>
+              </div>
+            </div>
+
+            {/* Earnings */}
+            <div className="bg-neo-dark-card border border-neo-dark-light rounded-2xl p-6">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm text-white/50">Your Earnings</span>
+                <div className="w-8 h-8 rounded-lg bg-neo-green/20 flex items-center justify-center">
+                  <svg className="w-4 h-4 text-neo-green" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+              </div>
+              <div className="text-3xl font-bold">
+                £{stats.totalEarnings.toLocaleString()}
+              </div>
+              <div className="mt-1 text-xs text-white/40">
+                {stats.codesRedeemed} × £20 commission
+              </div>
             </div>
           </div>
-          <div className="text-3xl font-bold">47</div>
-        </div>
 
-        <div className="bg-neo-dark-card border border-neo-dark-light rounded-2xl p-6">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-white/50">Paying Subscribers</span>
-            <div className="w-8 h-8 rounded-lg bg-neo-green/20 flex items-center justify-center">
-              <svg className="w-4 h-4 text-neo-green" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-              </svg>
-            </div>
+          {/* Monthly Chart */}
+          <div className="bg-neo-dark-card border border-neo-dark-light rounded-2xl p-6">
+            <h3 className="text-lg font-semibold mb-6">Monthly Referrals</h3>
+            <BarChart data={stats.monthlyReferrals} />
           </div>
-          <div className="text-3xl font-bold">32</div>
-        </div>
-
-        <div className="bg-neo-dark-card border border-neo-dark-light rounded-2xl p-6">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-white/50">Your Earnings</span>
-            <div className="w-8 h-8 rounded-lg bg-neo-green/20 flex items-center justify-center">
-              <svg className="w-4 h-4 text-neo-green" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-          </div>
-          <div className="text-3xl font-bold">£1,175</div>
-          <div className="flex gap-3 mt-1 text-xs">
-            <span className="text-neo-green">£975 paid</span>
-            <span className="text-yellow-400">£200 pending</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Monthly Chart */}
-      <div className="bg-neo-dark-card border border-neo-dark-light rounded-2xl p-6">
-        <h3 className="text-lg font-semibold mb-6">Monthly Referrals</h3>
-        <BarChart />
-      </div>
+        </>
+      )}
 
       {/* Payment History */}
       <div className="bg-neo-dark-card border border-neo-dark-light rounded-2xl p-6">
