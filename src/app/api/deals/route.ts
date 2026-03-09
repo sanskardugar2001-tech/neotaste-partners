@@ -34,7 +34,7 @@ function parseNotionPage(page: NotionPage): FlashDeal {
   return {
     id: page.id,
     restaurant_name: getTextContent(p["In-App name"]),
-    deal_offer: getTextContent(p["Event Deal."]),
+    deal_offer: getTextContent(p["Event deal £"]),
     start_date: timing?.start ?? "",
     end_date: timing?.end ?? timing?.start ?? "",
     city:
