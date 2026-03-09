@@ -3,9 +3,16 @@ import type { FlashDeal } from "@/lib/supabase";
 
 // ─── Notion helpers (will be moved to src/lib/notion.ts when API is connected) ───
 
+interface NotionPropertyValue {
+  title?: { text: { content: string } }[];
+  rich_text?: { text: { content: string } }[];
+  date?: { start: string };
+  select?: { name: string };
+}
+
 interface NotionPage {
   id: string;
-  properties: Record<string, any>;
+  properties: Record<string, NotionPropertyValue>;
 }
 
 function parseNotionPage(page: NotionPage): FlashDeal {
