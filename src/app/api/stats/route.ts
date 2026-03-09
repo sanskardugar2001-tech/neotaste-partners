@@ -25,6 +25,8 @@ const MOCK_STATS = {
 };
 
 export async function GET(request: NextRequest) {
+  const debug = request.nextUrl.searchParams.get("debug");
+
   try {
     // Get the creator's user ID from the auth header (session token)
     const authHeader = request.headers.get("authorization");
@@ -53,7 +55,7 @@ export async function GET(request: NextRequest) {
 
     if (creatorError || !creator?.voucher_code) {
       return NextResponse.json(
-        { error: "Creator not found or no voucher code assigned" },
+        { error: "Creator not found or no voucher code assigned", debug_user_id: user.id },
         { status: 404 }
       );
     }
@@ -65,20 +67,51 @@ export async function GET(request: NextRequest) {
       process.env.SNOWFLAKE_PASSWORD;
 
     if (!snowflakeConfigured) {
-      console.log(
-        "Snowflake not configured, returning mock data for code:",
-        creator.voucher_code
-      );
+      if (debug) {
+        return NextResponse.json({
+          source: "mock",
+          reason: "Snowflake not configured",
+          voucher_code: creator.voucher_code,
+          env_check: {
+            account: !!process.env.SNOWFLAKE_ACCOUNT,
+            username: !!process.env.SNOWFLAKE_USERNAME,
+            password: !!process.env.SNOWFLAKE_PASSWORD,
+            warehouse: process.env.SNOWFLAKE_WAREHOUSE || "not set",
+          },
+          stats: MOCK_STATS,
+        });
+      }
       return NextResponse.json(MOCK_STATS);
     }
 
     // Fetch real stats from Snowflake
-    const stats = await getDashboardStats(creator.voucher_code);
-    return NextResponse.json(stats);
+    try {
+      const stats = await getDashboardStats(creator.voucher_code);
+      if (debug) {
+        return NextResponse.json({
+          source: "snowflake",
+          voucher_code: creator.voucher_code,
+          stats,
+        });
+      }
+      return NextResponse.json(stats);
+    } catch (snowflakeErr) {
+      console.error("Snowflake error:", snowflakeErr);
+      if (debug) {
+        return NextResponse.json({
+          source: "mock (snowflake error)",
+          voucher_code: creator.voucher_code,
+          error: snowflakeErr instanceof Error ? snowflakeErr.message : String(snowflakeErr),
+          stats: MOCK_STATS,
+        });
+      }
+      // Fall back to mock data on Snowflake errors
+      return NextResponse.json(MOCK_STATS);
+    }
   } catch (err) {
     console.error("Stats API error:", err);
     return NextResponse.json(
-      { error: "Failed to fetch stats" },
+      { error: "Failed to fetch stats", detail: err instanceof Error ? err.message : String(err) },
       { status: 500 }
     );
   }
