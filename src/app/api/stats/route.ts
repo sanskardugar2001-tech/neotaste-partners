@@ -8,20 +8,13 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-// Mock data fallback when Snowflake isn't configured yet
-const MOCK_STATS = {
-  codesRedeemed: 47,
-  annualSubscribers: 28,
-  monthlySubscribers: 19,
-  totalEarnings: 940,
-  monthlyReferrals: [
-    { month: "Sep", count: 4 },
-    { month: "Oct", count: 8 },
-    { month: "Nov", count: 5 },
-    { month: "Dec", count: 12 },
-    { month: "Jan", count: 6 },
-    { month: "Feb", count: 12 },
-  ],
+// Empty stats — shown when code has 0 redemptions (NOT fake mock data)
+const EMPTY_STATS = {
+  codesRedeemed: 0,
+  annualSubscribers: 0,
+  monthlySubscribers: 0,
+  totalEarnings: 0,
+  monthlyReferrals: [],
 };
 
 export async function GET(request: NextRequest) {
@@ -69,8 +62,7 @@ export async function GET(request: NextRequest) {
     if (!snowflakeConfigured) {
       if (debug) {
         return NextResponse.json({
-          source: "mock",
-          reason: "Snowflake not configured",
+          source: "empty (Snowflake not configured)",
           voucher_code: creator.voucher_code,
           env_check: {
             account: !!process.env.SNOWFLAKE_ACCOUNT,
@@ -78,10 +70,10 @@ export async function GET(request: NextRequest) {
             password: !!process.env.SNOWFLAKE_PASSWORD,
             warehouse: process.env.SNOWFLAKE_WAREHOUSE || "not set",
           },
-          stats: MOCK_STATS,
+          stats: EMPTY_STATS,
         });
       }
-      return NextResponse.json(MOCK_STATS);
+      return NextResponse.json(EMPTY_STATS);
     }
 
     // Fetch real stats from Snowflake
@@ -99,14 +91,14 @@ export async function GET(request: NextRequest) {
       console.error("Snowflake error:", snowflakeErr);
       if (debug) {
         return NextResponse.json({
-          source: "mock (snowflake error)",
+          source: "error",
           voucher_code: creator.voucher_code,
           error: snowflakeErr instanceof Error ? snowflakeErr.message : String(snowflakeErr),
-          stats: MOCK_STATS,
+          stats: EMPTY_STATS,
         });
       }
-      // Fall back to mock data on Snowflake errors
-      return NextResponse.json(MOCK_STATS);
+      // Return zeros on error — never show fake data
+      return NextResponse.json(EMPTY_STATS);
     }
   } catch (err) {
     console.error("Stats API error:", err);
