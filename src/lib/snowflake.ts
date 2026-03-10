@@ -114,7 +114,7 @@ export async function getDashboardStats(
     `SELECT COUNT(DISTINCT SUBSCRIPTIONID) AS CODES_REDEEMED
      FROM NEOTASTE_PROD.SUBSCRIPTION.SUBSCRIPTION_EVENTS
      WHERE LOWER(DISCOUNTCODEUSED) = LOWER('${safeCode}')
-       AND TYPE = 'Referral'`
+       AND TYPE = 'Voucher'`
   );
   const codesRedeemed = parseInt(codeResult[0]?.CODES_REDEEMED || "0", 10);
 
@@ -127,7 +127,7 @@ export async function getDashboardStats(
             COUNT(DISTINCT SUBSCRIPTIONID) AS CNT
      FROM NEOTASTE_PROD.SUBSCRIPTION.SUBSCRIPTION_EVENTS
      WHERE LOWER(DISCOUNTCODEUSED) = LOWER('${safeCode}')
-       AND TYPE = 'Referral'
+       AND TYPE = 'Voucher'
      GROUP BY SUBSCRIPTIONTYPE`
   );
 
@@ -136,7 +136,7 @@ export async function getDashboardStats(
   for (const row of conversionResult) {
     const type = (row.SUBSCRIPTIONTYPE || "").toLowerCase();
     const count = parseInt(row.CNT || "0", 10);
-    if (type === "yearly" || type === "annual") {
+    if (type === "yearly" || type === "annual" || type === "twoyears") {
       annualSubscribers += count;
     } else if (type === "monthly") {
       monthlySubscribers += count;
@@ -155,7 +155,7 @@ export async function getDashboardStats(
             COUNT(DISTINCT SUBSCRIPTIONID) AS REF_COUNT
      FROM NEOTASTE_PROD.SUBSCRIPTION.SUBSCRIPTION_EVENTS
      WHERE LOWER(DISCOUNTCODEUSED) = LOWER('${safeCode}')
-       AND TYPE = 'Referral'
+       AND TYPE = 'Voucher'
        AND CREATED >= DATEADD('month', -6, CURRENT_DATE())
      GROUP BY DATE_TRUNC('month', CREATED), TO_CHAR(CREATED, 'Mon')
      ORDER BY DATE_TRUNC('month', CREATED)`
